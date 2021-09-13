@@ -1,0 +1,42 @@
+name: SakurajimaMai
+
+on:
+    push:
+        branches:
+          - main
+    workflow_dispatch:
+    schedule:
+        - cron: '0 0/6 * * *'
+    repository_dispatch:
+        types: joy
+
+jobs:
+    run1:
+        runs-on: macos-latest
+        strategy:
+            matrix:
+                python-version: [3.9]
+        steps:
+            - name: Checkout
+              run: |
+                  git clone https://github.com/0Chencc/SakurajimaMai ~/SakurajimaMai
+            - uses: actions/checkout@v2
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            - name: 'SakurajimaMai'
+              run: |
+                  python ./src/main.py
+              env:
+                  BREAKFAST: ${{ secrets.BREAKFAST }}
+                  LUNCH: ${{ secrets.LUNCH }}
+                  DINNER: ${{ secrets.DINNER }}
+                  WB_UIDS: ${{ secrets.WB_UIDS }}
+                  BIDS: ${{ secrets.BIDS }}
+                  SECRET: ${{ secrets.SECRET }}
+                  WEBHOOK: ${{ secrets.WEBHOOK }}
